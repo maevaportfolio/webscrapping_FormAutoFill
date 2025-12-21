@@ -342,9 +342,6 @@ docker run -p 8000:8000 form-autofill-api
 
 ## 👤 Auteur
 
-**Maeva** - Master MOSEF  
-Université Paris 1 Panthéon-Sorbonne  
-2024
 
 ---
 
