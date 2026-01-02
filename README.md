@@ -327,13 +327,33 @@ webscraping_project/
 | Sites avec authentification forte | 2FA, SMS | Non automatisable |
 | iFrames | Contenu isolé | Nécessite switch de contexte |
 
+---
+
+## 🛠️ Personnalisation
+
+### Ajouter un nouveau champ
+
+1. **Dans `COMMON_FIELD_KEYWORDS`** :
+```python
+'mon_nouveau_champ': ['keyword1', 'keyword2', 'motcle']
+```
+
+2. **Dans `DEFAULT_VALUES`** :
+```python
+'mon_nouveau_champ': 'valeur_par_defaut'
+```
+
+3. **Dans la config du site** (`test_simple_v3.py`) :
+```python
+"mon_nouveau_champ": "ma_valeur"
+```
 
 ---
 
 ## 👥 Équipe
 
-- **Lina RAGALA, Roland DUTAUZIET, Maeva N'GUESSAN** - Université Paris 1 Panthéon-Sorbonne
-- Projet de Web Scraping - 2026
+- **Équipe Master MOSEF** - Université Paris 1 Panthéon-Sorbonne
+- Projet de Web Scraping - 2024
 
 ---
 
