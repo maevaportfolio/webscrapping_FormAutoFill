@@ -16,6 +16,63 @@ Créer un système intelligent qui **remplit automatiquement les formulaires web
 - **Selenium** pour contrôler le navigateur
 - **Distance de Levenshtein** pour détecter les champs de manière flexible
 - **FastAPI** pour exposer une API REST
+- **Tkinter** pour une interface graphique de sélection de profil
+- **Recherche Google** comme point de départ réaliste
+
+---
+
+## 🆕 Nouveautés de la Version 5.0
+
+| Fonctionnalité | Description |
+|----------------|-------------|
+| **3 Profils Utilisateurs** | Voyageur Standard, Client Affaires, Touriste International |
+| **Interface Graphique** | Sélection visuelle du profil avec Tkinter |
+| **Recherche Google** | Navigation libre depuis Google vers n'importe quel site |
+| **Monitoring Continu** | Détection automatique des formulaires lors de la navigation |
+| **Nouveaux Endpoints** | GET /profiles, POST /form/detect |
+| **Profils Centralisés** | Stockés dans l'API, pas dans le client |
+
+---
+
+## 👥 Les 3 Profils Utilisateurs
+
+L'API propose 3 profils prédéfinis pour différents scénarios de test :
+
+### ✈️ Profil 1 : Voyageur Standard (Jean Dupont)
+
+| Champ | Valeur |
+|-------|--------|
+| Prénom | Jean |
+| Nom | Dupont |
+| Email | jean.dupont@example.com |
+| Téléphone | +33612345678 |
+| Ville | Paris |
+| Pays | France |
+| Genre | Homme |
+
+### 💼 Profil 2 : Client Affaires (Marie Martin)
+
+| Champ | Valeur |
+|-------|--------|
+| Prénom | Marie |
+| Nom | Martin |
+| Email | marie.martin@example.com |
+| Téléphone | +33687654321 |
+| Ville | Lyon |
+| Pays | France |
+| Genre | Femme |
+
+### 🌍 Profil 3 : Touriste International (Anna Schmidt)
+
+| Champ | Valeur |
+|-------|--------|
+| Prénom | Anna |
+| Nom | Schmidt |
+| Email | anna.schmidt@gmail.com |
+| Téléphone | +49301234567 |
+| Ville | Paris |
+| Pays | Germany |
+| Genre | Femme |
 
 ---
 
@@ -27,14 +84,17 @@ Créer un système intelligent qui **remplit automatiquement les formulaires web
 |------|----------|--------|
 | **Inputs texte** | Nom, Email, Téléphone, Adresse | ✅ |
 | **Inputs email** | Email de contact, Login | ✅ |
-| **Inputs password** | Mot de passe (avec génération sécurisée) | ✅ |
+| **Inputs password** | Mot de passe + confirmation | ✅ |
 | **Checkboxes simples** | "Se souvenir de moi", "Accepter les CGU" | ✅ |
 | **Checkboxes multiples** | Garnitures pizza, Options de voyage | ✅ |
-| **Radios simples** | Genre (M/F), Taille (S/M/L) | ✅ |
-| **Radios complexes** | "Pour qui réservez-vous ?", "Voyagez-vous pour le travail ?" | ✅ |
+| **Checkboxes par label** | Communication, Partenaires (Basic-Fit) | ✅ |
+| **Radios simples** | Genre (Homme/Femme/Autre), Taille (S/M/L) | ✅ |
+| **Radios Yes/No** | "Voyagez-vous pour le travail ?" | ✅ |
+| **Radios avec synonymes** | Male = Homme = Man = Masculin | ✅ |
 | **Selects / Dropdowns** | Pays, Civilité, Heure d'arrivée | ✅ |
 | **Textareas** | Commentaires, Adresse complète | ✅ |
 | **Champs de date** | Jour/Mois/Année séparés ou combinés | ✅ |
+| **Adresses séparées** | Numéro ≠ Rue ≠ Complément ≠ Ville | ✅ |
 
 ---
 
@@ -45,111 +105,63 @@ Créer un système intelligent qui **remplit automatiquement les formulaires web
 | Site | URL | Ce qui est testé |
 |------|-----|------------------|
 | **HTTPBin Pizza** | `httpbin.org/forms/post` | Radios (taille), Checkboxes (garnitures), Textarea |
-| **DemoQA** | `demoqa.com/automation-practice-form` | Formulaire complet de test |
-| **Formy** | `formy-project.herokuapp.com/form` | Radios, Checkboxes, Dates |
-| **The Internet** | `the-internet.herokuapp.com/checkboxes` | Checkboxes isolées |
 
-### Sites Réels (Vie Quotidienne)
+### Sites Réels
 
 | Site | URL | Ce qui est testé |
 |------|-----|------------------|
 | **Air Arabia** | `airarabia.com` | Réservation vol : civilité, dates, nationalité, passeport |
-| **Booking.com** | `booking.com` | Réservation hôtel : radios "Pour qui ?", "Travail ?", heure d'arrivée, options voiture/transfert |
-| **SNCF Connect** | `sncf-connect.com` | Connexion : email, mot de passe, checkbox "Se souvenir de moi" |
+| **Basic-Fit** | `basic-fit.com/fr-fr/inscription` | Genre (radio), adresses séparées, checkboxes communication |
+| **Booking.com** | `booking.com` | Radios "Pour qui ?", "Travail ?", options voiture/transfert |
+| **Domino's** | `commande.dominos.fr/login` | Email, mot de passe, CGU, newsletter |
 | **Spotify** | `spotify.com/signup` | Inscription multi-étapes : email → mot de passe → profil |
+| **SNCF Connect** | `sncf-connect.com` | Connexion : email, mot de passe, "Se souvenir de moi" |
 
 ---
 
-## 🔧 Cas d'Usage Spécifiques
+## 🏗️ Architecture du Projet
 
-### 1. Checkbox "Se souvenir de moi" (SNCF)
-
-```python
-# Configuration
-"remember_me": True  # Coche automatiquement la case
 ```
-
-Le système détecte les checkboxes de type "remember", "souvenir", "stay_logged" et les coche si `True`.
-
----
-
-### 2. Radios "Pour qui réservez-vous ?" (Booking)
-
-```python
-# Configuration
-"booking_for": "main_guest"  # Options: "main_guest" ou "other_guest"
+┌─────────────────────────────────────────────────────────────────┐
+│                        UTILISATEUR                               │
+│                  Lance test_recherche_google.py                  │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                   INTERFACE TKINTER                              │
+│   ┌─────────────┐  ┌─────────────┐  ┌─────────────┐             │
+│   │ ✈️ Profil 1 │  │ 💼 Profil 2 │  │ 🌍 Profil 3 │             │
+│   └─────────────┘  └─────────────┘  └─────────────┘             │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      CLIENT (Python)                             │
+│                  test_recherche_google.py                        │
+│  • GET /profiles/{id} → Récupère les données du profil           │
+│  • POST /session/create → Ouvre Google                           │
+│  • POST /form/fill → Remplit les formulaires                     │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      SERVEUR (API FastAPI)                       │
+│                   api_form_autofill_v5.py                        │
+│  • GENERIC_PROFILES → Les 3 profils stockés                      │
+│  • FIELD_KEYWORDS → Mots-clés pour Levenshtein                   │
+│  • RADIO_VALUES → Synonymes (Homme = Male = Man)                 │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     NAVIGATEUR (Edge)                            │
+│  1. Ouvre Google.com                                             │
+│  2. L'utilisateur cherche un site (ex: "Air Arabia")             │
+│  3. Détection automatique des formulaires                        │
+│  4. Remplissage automatique avec le profil choisi                │
+└─────────────────────────────────────────────────────────────────┘
 ```
-
-Le système comprend les synonymes :
-- `main_guest` → "Je suis le client principal", "myself", "moi"
-- `other_guest` → "Je réserve pour un autre", "someone else"
-
----
-
-### 3. Radios "Voyagez-vous pour le travail ?" (Booking)
-
-```python
-# Configuration
-"work_travel": "no"  # Options: "yes" ou "no"
-```
-
-Le système comprend les synonymes français/anglais :
-- `yes` → "Oui", "Yes", "true"
-- `no` → "Non", "No", "false"
-
----
-
-### 4. Select "Heure d'arrivée" avec plages horaires (Booking)
-
-```python
-# Configuration
-"arrival_time": "15:00"  # Sera matché avec "15:00 - 16:00" ou "15h00"
-```
-
-Le système trouve automatiquement la plage horaire correspondante dans le dropdown.
-
----
-
-### 5. Checkboxes d'options (Booking)
-
-```python
-# Configuration
-"car_rental": True,       # "Je suis intéressé(e) par la location d'une voiture"
-"airport_transfer": True  # "Je suis intéressé(e) par un transfert aéroport"
-```
-
-Le système détecte ces checkboxes par leurs mots-clés : "car", "voiture", "location", "transfer", "transfert", "navette".
-
----
-
-### 6. Checkboxes multiples (HTTPBin Pizza)
-
-```python
-# Configuration - Liste de valeurs à cocher
-"topping": ["bacon", "cheese", "mushroom"]
-```
-
-Le système coche automatiquement chaque checkbox dont la `value` correspond à un élément de la liste.
-
----
-
-### 7. Formulaires multi-étapes (Spotify)
-
-```python
-# Le système gère automatiquement les changements de page
-# Étape 1: Email
-"email": "jean@example.com"
-
-# Étape 2: Mot de passe (respecte les contraintes)
-"password": "SecurePass123!"  # Min 10 chars, 1 lettre, 1 chiffre/special
-
-# Étape 3: Profil
-"username": "jeandupont1990"
-"date_of_birth": "1990-01-15"
-"gender": "Male"
-```
-
-Le script de test surveille les changements de page et remplit automatiquement chaque étape.
 
 ---
 
@@ -186,9 +198,9 @@ requests==2.31.0
 
 ### 3. Modifier le chemin du driver (si nécessaire)
 
-Dans `api_form_autofill_v3.py`, ligne 50 :
+Dans `api_form_autofill_v5.py`, ligne ~153 :
 ```python
-DRIVER_PATH = r"C:\ton\chemin\vers\msedgedriver.exe"
+DRIVER_PATH = os.path.join(os.path.dirname(__file__), "msedgedriver.exe")
 ```
 
 ---
@@ -198,39 +210,37 @@ DRIVER_PATH = r"C:\ton\chemin\vers\msedgedriver.exe"
 ### Terminal 1 - Lancer l'API
 
 ```bash
-python api_form_autofill_v3.py
+python api_form_autofill_v5.py
 ```
 
 Résultat attendu :
 ```
-🚀 Démarrage de l'API Form Autofill - Version 3.0 Complète
-📚 Documentation: http://localhost:8000/docs
-✨ Supporte: checkboxes, radios, selects, dates, passwords, et plus!
+🚀 API Form Autofill v5
+📚 http://localhost:8000/docs
+✅ Levenshtein: OUI
 INFO:     Uvicorn running on http://0.0.0.0:8000
 ```
 
-### Terminal 2 - Lancer le test
+### Terminal 2 - Lancer le test avec interface graphique
 
 ```bash
-python test_simple_v3.py
+python test_recherche_google.py
 ```
 
-### Changer de site à tester
+### Flux d'utilisation
 
-Dans `test_simple_v3.py`, modifie la variable `CURRENT_SITE` :
-
-```python
-CURRENT_SITE = "httpbin"    # Formulaire pizza
-CURRENT_SITE = "booking"    # Réservation hôtel
-CURRENT_SITE = "sncf"       # Connexion SNCF
-CURRENT_SITE = "spotify"    # Inscription Spotify
-CURRENT_SITE = "airarabia"  # Réservation vol
-CURRENT_SITE = "demoqa"     # Formulaire de test
-```
+1. **L'interface Tkinter s'affiche** → Choisissez un profil (Voyageur, Affaires, ou Touriste)
+2. **Google s'ouvre** dans le navigateur
+3. **Faites une recherche** (ex: "Basic-Fit inscription")
+4. **Cliquez sur un résultat** → Le formulaire est détecté automatiquement
+5. **Remplissage automatique** avec les données du profil choisi
+6. **Continuez à naviguer** → Le monitoring détecte les nouveaux formulaires
 
 ---
 
 ## 📡 API Endpoints
+
+### Endpoints de Base
 
 | Endpoint | Méthode | Description |
 |----------|---------|-------------|
@@ -241,25 +251,43 @@ CURRENT_SITE = "demoqa"     # Formulaire de test
 | `/sessions` | GET | Liste toutes les sessions actives |
 | `/form/fill` | POST | Remplit les formulaires de la page |
 
+### Nouveaux Endpoints (v5)
+
+| Endpoint | Méthode | Description |
+|----------|---------|-------------|
+| `/profiles` | GET | Liste tous les profils disponibles |
+| `/profiles/{profile_id}` | GET | Récupère les données complètes d'un profil |
+| `/form/detect` | POST | Détecte les champs AVANT de remplir |
+| `/session/{id}/click-next` | POST | Clique sur le bouton "Suivant" |
+
 ### Exemple d'appel API
 
 ```python
 import requests
 
-# 1. Créer une session
+# 1. Récupérer un profil
+response = requests.get("http://localhost:8000/profiles/profile1")
+profile_data = response.json()['data']
+
+# 2. Créer une session
 requests.post("http://localhost:8000/session/create", json={
     "session_id": "ma_session",
-    "url": "https://httpbin.org/forms/post"
+    "url": "https://www.google.com"
 })
 
-# 2. Remplir le formulaire
+# 3. Détecter les champs (optionnel)
+requests.post("http://localhost:8000/form/detect", json={
+    "session_id": "ma_session",
+    "use_levenshtein": True,
+    "levenshtein_threshold": 0.5
+})
+
+# 4. Remplir le formulaire
 requests.post("http://localhost:8000/form/fill", json={
     "session_id": "ma_session",
-    "values": {
-        "custname": "Jean Dupont",
-        "size": "medium",
-        "topping": ["bacon", "cheese"]
-    }
+    "values": profile_data,
+    "use_levenshtein": True,
+    "levenshtein_threshold": 0.5
 })
 ```
 
@@ -288,15 +316,89 @@ Fonctionne même si les sites nomment leurs champs différemment :
 
 ---
 
+## 🔄 Système de Synonymes pour Radios
+
+### Genre
+
+```python
+RADIO_VALUES = {
+    'homme': ['homme', 'male', 'man', 'm', 'masculin', 'herr'],
+    'femme': ['femme', 'female', 'woman', 'f', 'féminin', 'frau'],
+    'autre': ['autre', 'other', 'divers', 'non-binary'],
+}
+```
+
+**Exemple** : Si le profil a `gender: "Male"` et le site affiche "Homme", le système comprend que c'est synonyme et coche le bon radio.
+
+### Yes/No
+
+```python
+RADIO_VALUES = {
+    'oui': ['oui', 'yes', 'true', '1', 'on', 'ja'],
+    'non': ['non', 'no', 'false', '0', 'off', 'nein'],
+}
+```
+
+**Exemple** : Si le profil a `work_travel: "no"` et le site demande "Voyagez-vous pour le travail ? Oui/Non", le système sélectionne "Non".
+
+---
+
+## ☑️ Détection des Checkboxes par Label
+
+Pour les checkboxes avec des labels complexes (Basic-Fit, Domino's), le système lit le texte du label :
+
+```python
+# Si le label contient "partenaire" ou "partner"
+if any(kw in label_text for kw in ['partenaire', 'partner', 'promotions']):
+    # Chercher la valeur correspondante dans le profil
+    if 'partner_promo' in provided_values:
+        return provided_values['partner_promo']  # True ou False
+```
+
+**Exemple** : 
+- Label : "Oui, je souhaite recevoir des promotions des partenaires"
+- Profil : `partner_promo: False`
+- Résultat : La checkbox n'est PAS cochée ✅
+
+---
+
+## 🏠 Séparation des Champs d'Adresse
+
+Pour les sites comme Basic-Fit qui ont des champs séparés :
+
+```python
+# Si le champ contient "numero" ou "number" (mais pas "phone")
+if 'numero' in field_name and 'phone' not in field_name:
+    value = "15"  # Juste le numéro
+
+# Si le champ contient "rue" ou "street" (mais pas "number")
+if 'rue' in field_name and 'number' not in field_name:
+    value = "Rue de la Paix"  # Juste le nom de rue
+
+# Si le champ contient "complement" ou "extra"
+if 'complement' in field_name:
+    value = "Appartement 3B"  # Le complément
+```
+
+**Résultat** :
+| Champ | Valeur |
+|-------|--------|
+| Numéro | 15 |
+| Rue | Rue de la Paix |
+| Complément | Appartement 3B |
+| Ville | Paris |
+
+---
+
 ## 📊 Résultats des Tests
 
 | Site | Champs détectés | Champs remplis | Taux |
 |------|-----------------|----------------|------|
 | HTTPBin Pizza | 6 | 6 | ✅ 100% |
-| DemoQA | 10 | 9 | ✅ 90% |
-| Formy | 6 | 6 | ✅ 100% |
+| Basic-Fit | 15 | 14 | ✅ 93% |
 | Air Arabia | 12 | 10 | ✅ 83% |
 | Booking | 15 | 12 | ✅ 80% |
+| Domino's | 5 | 5 | ✅ 100% |
 | SNCF Connect | 3 | 3 | ✅ 100% |
 
 ---
@@ -306,14 +408,13 @@ Fonctionne même si les sites nomment leurs champs différemment :
 ```
 webscraping_project/
 │
-├── api_form_autofill_v3.py   # API principale (FastAPI + Selenium)
-├── test_simple_v3.py         # Script de test avec configs par site
-├── msedgedriver.exe          # Driver Selenium pour Edge
-├── requirements_api.txt      # Dépendances Python
+├── api_form_autofill_v5.py      # API principale (FastAPI + Selenium + Profils)
+├── test_recherche_google.py     # Script de test avec interface Tkinter + Google
+├── msedgedriver.exe             # Driver Selenium pour Edge
+├── requirements_api.txt         # Dépendances Python
 │
-├── README.md                 # Cette documentation
-├── GUIDE_RAPIDE.md          # Guide de démarrage rapide
-└── AMELIORATIONS.md         # Historique des améliorations
+├── README.md                    # Cette documentation
+└── rapport_version_amelioree.md # Rapport détaillé pour la soutenance
 ```
 
 ---
@@ -331,32 +432,38 @@ webscraping_project/
 
 ## 🛠️ Personnalisation
 
-### Ajouter un nouveau champ
+### Ajouter un nouveau profil
 
-1. **Dans `COMMON_FIELD_KEYWORDS`** :
+Dans `api_form_autofill_v5.py`, ajoutez dans `GENERIC_PROFILES` :
+
+```python
+'profile4': {
+    'name': 'Profil 4 - Mon Nouveau Profil',
+    'first_name': 'Pierre',
+    'last_name': 'Durant',
+    'email': 'pierre.durant@example.com',
+    'phone': '+33698765432',
+    'city': 'Marseille',
+    'country': 'France',
+    # ... autres champs
+}
+```
+
+### Ajouter un nouveau type de champ
+
+1. **Dans `FIELD_KEYWORDS`** :
 ```python
 'mon_nouveau_champ': ['keyword1', 'keyword2', 'motcle']
 ```
 
-2. **Dans `DEFAULT_VALUES`** :
+2. **Dans les profils** :
 ```python
 'mon_nouveau_champ': 'valeur_par_defaut'
 ```
 
-3. **Dans la config du site** (`test_simple_v3.py`) :
+### Ajouter des synonymes pour les radios
+
+Dans `RADIO_VALUES` :
 ```python
-"mon_nouveau_champ": "ma_valeur"
+'ma_valeur': ['ma_valeur', 'synonym1', 'synonym2', 'traduction']
 ```
-
----
-
-## 👥 Équipe
-
-- **Équipe Master MOSEF** - Université Paris 1 Panthéon-Sorbonne
-- Projet de Web Scraping - 2024
-
----
-
-## 📄 Licence
-
-MIT License - Projet académique
